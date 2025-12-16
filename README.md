@@ -20,6 +20,15 @@ Key differences from upstream ContextGuard:
 - Per-tool granularity (planned), stronger rule packs, and richer observability.
 - Designed to wrap common MCP deployments (mcpo, OpenWebUI, n8n, custom servers).
 
+### What’s different from upstream (at a glance)
+- Product name: **Tehuti-Guard** (fork of ContextGuard)
+- Stricter defaults and policy schema planned (allowlists per tool/server)
+- Roadmap for per-tool allow/deny and per-tool rate limits
+- Rule packs with versioning/auto-update planned
+- Planned HTTP/SSE proxy mode (beyond stdio)
+- Planned observability: Prometheus metrics + webhook sinks
+- Planned attack corpus + regression suite to manage block/FP rates
+
 ---
 
 ## 🚀 Quick Start
