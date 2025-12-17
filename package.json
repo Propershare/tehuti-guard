@@ -1,14 +1,15 @@
 {
-  "name": "contextguard",
-  "version": "0.1.8",
-  "description": "Security monitoring wrapper for MCP servers",
+  "name": "tehuti-guard",
+  "version": "0.1.8-tehuti.0",
+  "description": "Security-focused MCP proxy with per-tool policies and stricter allowlists",
   "main": "dist/mcp-security-wrapper.js",
   "types": "dist/mcp-security-wrapper.d.ts",
-  "homepage": "https://github.com/amironi/contextguard#readme",
-  "author": "Amir Mironi",
+  "homepage": "https://github.com/Propershare/tehuti-guard#readme",
+  "author": "Tehuti Guard maintainers",
   "license": "MIT",
   "bin": {
-    "contextguard": "./dist/mcp-security-wrapper.js"
+    "contextguard": "./dist/mcp-security-wrapper.js",
+    "tehuti-guard": "./dist/mcp-security-wrapper.js"
   },
   "scripts": {
     "build": "tsc",
@@ -23,14 +24,17 @@
     "security",
     "ai",
     "llm",
-    "claude"
+    "claude",
+    "policy",
+    "guard",
+    "maat"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/amironi/contextguard.git"
+    "url": "https://github.com/Propershare/tehuti-guard.git"
   },
   "bugs": {
-    "url": "https://github.com/amironi/contextguard/issues"
+    "url": "https://github.com/Propershare/tehuti-guard/issues"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",

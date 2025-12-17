@@ -130,6 +130,11 @@ Roadmap additions (planned):
 - Deny-by-default mode with explicit allowlists
 - Policy schema + `--validate-config`
 
+### Example presets
+- `examples/filesystem.json`: strict paths for file tools, deny execute/delete.
+- `examples/postgres.json`: allow read-only queries; deny execute.
+- `examples/n8n-mcp.json`: allow discovery/validation tools with rate caps.
+
 ---
 
 ## Security Events (JSON)
