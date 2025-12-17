@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "logLevel": "info",
+  "logPath": "/var/log/tehuti-guard/n8n-mcp.log",
+  "maxToolCallsPerMinute": 20,
+  "enablePromptInjectionDetection": true,
+  "enableSensitiveDataDetection": true,
+  "enablePathTraversalPrevention": true,
+  "tools": {
+    "search_nodes": { "action": "allow", "maxToolCallsPerMinute": 30 },
+    "get_node_documentation": { "action": "allow", "maxToolCallsPerMinute": 30 },
+    "validate_workflow": { "action": "allow", "maxToolCallsPerMinute": 15 },
+    "validate_node_operation": { "action": "allow", "maxToolCallsPerMinute": 15 }
+  }
+}
+

@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "logLevel": "info",
+  "logPath": "/var/log/tehuti-guard/filesystem.log",
+  "maxToolCallsPerMinute": 20,
+  "enablePromptInjectionDetection": true,
+  "enableSensitiveDataDetection": true,
+  "enablePathTraversalPrevention": true,
+  "allowedFilePaths": [
+    "/srv/tehuti",
+    "/srv/projects",
+    "/var/log/tehuti"
+  ],
+  "tools": {
+    "read_file": {
+      "action": "allow",
+      "maxToolCallsPerMinute": 60,
+      "allowedFilePaths": [
+        "/srv/tehuti",
+        "/srv/projects",
+        "/var/log/tehuti"
+      ]
+    },
+    "write_file": {
+      "action": "allow",
+      "maxToolCallsPerMinute": 10,
+      "allowedFilePaths": [
+        "/srv/tehuti",
+        "/srv/projects/logs"
+      ],
+      "enablePathTraversalPrevention": true
+    },
+    "delete_file": {
+      "action": "deny"
+    },
+    "execute": {
+      "action": "deny"
+    }
+  }
+}
+
