@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "logLevel": "info",
+  "logPath": "/var/log/tehuti-guard/postgres.log",
+  "maxToolCallsPerMinute": 20,
+  "enablePromptInjectionDetection": true,
+  "enableSensitiveDataDetection": true,
+  "enablePathTraversalPrevention": false,
+  "tools": {
+    "sql_query": {
+      "action": "allow",
+      "maxToolCallsPerMinute": 20
+    },
+    "sql_execute": {
+      "action": "deny"
+    }
+  }
+}
+

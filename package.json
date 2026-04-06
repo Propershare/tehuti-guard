@@ -1,0 +1,50 @@
+{
+  "name": "tehuti-guard",
+  "version": "0.1.8-tehuti.0",
+  "description": "Security-focused MCP proxy with per-tool policies and stricter allowlists",
+  "main": "dist/mcp-security-wrapper.js",
+  "types": "dist/mcp-security-wrapper.d.ts",
+  "homepage": "https://github.com/Propershare/tehuti-guard#readme",
+  "author": "Tehuti Guard maintainers",
+  "license": "MIT",
+  "bin": {
+    "contextguard": "./dist/mcp-security-wrapper.js",
+    "tehuti-guard": "./dist/mcp-security-wrapper.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node src/mcp-security-wrapper.ts",
+    "test": "jest",
+    "lint": "eslint .",
+    "release": "npm publish & npm install -g contextguard"
+  },
+  "keywords": [
+    "mcp",
+    "security",
+    "ai",
+    "llm",
+    "claude",
+    "policy",
+    "guard",
+    "maat"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Propershare/tehuti-guard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Propershare/tehuti-guard/issues"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/node": "^24.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "eslint": "^9.37.0",
+    "globals": "^16.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}
