@@ -184,6 +184,10 @@ Roadmap additions (planned):
 - Fork, branch, add tests, open PR.
 - Focus areas: rule packs, per-tool policies, transports, metrics/alerts, test corpus.
 
+## Attribution
+
+Tehuti-Guard is part of the Tehuti Lab ecosystem, built on the **KA2 Methodology** and **42 Laws of Dialectical Development** by **Dr. Tdka Kilimanjaro** ([University of KMT](https://universityofkmt.myshopify.com)). See [ATTRIBUTION.md](ATTRIBUTION.md) for details.
+
 ## License
 MIT (inherited from upstream)
 
