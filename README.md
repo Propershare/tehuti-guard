@@ -1,197 +1,86 @@
-# Tehuti-Guard
+# Tehuti Guard — standalone monorepo
 
-**Security layer for Model Context Protocol servers**
+**One product. Two packages. One constitutional doctrine.**
 
-Forked from ContextGuard with a focus on per-tool policies, stricter allowlists, and operational guardrails for MCP deployments.
+Tehuti Guard is the enforcement runtime for governed AI actions. MaatBench defines
+the covenant record law; the **decision API** compiles and enforces it; the **MCP
+proxy** intercepts tool calls and optionally delegates to the API.
 
----
+```
+Model / agent proposes action
+        ↓
+MCP proxy intercepts (packages/mcp-proxy)     [optional HTTP]
+        ↓
+Decision API compile + enforce (packages/decision-api)
+        ↓
+allow | review | deny → evidence preserved
+```
 
-## 🎯 Why Tehuti-Guard?
+## Packages
 
-- MCP servers routinely face:
-  - 🔓 Prompt injection
-  - 🔑 API key leakage
-  - 📁 Unauthorized file access and traversal
-  - 🚨 Tool abuse (runaway loops / rate abuse)
-- Tehuti-Guard adds defense-in-depth with configurable, versioned policies and auditable enforcement.
+| Package | Path | Role |
+|---------|------|------|
+| **mcp-proxy** | `packages/mcp-proxy/` | npm MCP security wrapper; optional `guardApiUrl` → `/compile-decision` |
+| **decision-api** | `packages/decision-api/` | Python HTTP API on `:8013` — v1 `/decision` + v2 `/compile-decision` |
+| **contracts** | `packages/contracts/` | Shared JSON schemas and wire vocabulary |
 
-Key differences from upstream ContextGuard:
-- Stricter defaults: allowlists per tool/server, explicit policy schema (planned).
-- Per-tool granularity (planned), stronger rule packs, and richer observability.
-- Designed to wrap common MCP deployments (mcpo, OpenWebUI, workflow engine, custom servers).
+## Quick start
 
-### What’s different from upstream (at a glance)
-- Product name: **Tehuti-Guard** (fork of ContextGuard)
-- Stricter defaults and policy schema planned (allowlists per tool/server)
-- Roadmap for per-tool allow/deny and per-tool rate limits
-- Rule packs with versioning/auto-update planned
-- Planned HTTP/SSE proxy mode (beyond stdio)
-- Planned observability: Prometheus metrics + webhook sinks
-- Planned attack corpus + regression suite to manage block/FP rates
-
----
-
-## 🚀 Quick Start
+### Decision API (Python)
 
 ```bash
-# install globally
-npm install -g contextguard   # (base dependency; fork will publish as tehuti-guard)
-
-# wrap an MCP server (example)
-tehuti-guard --server "node /path/to/server.js" --config /path/to/config.json
+cd packages/decision-api
+pip install -e .
+export MAATBENCH_PATH=/mnt/ai_models/maatbench   # required for /compile-decision
+tehuti-guard-serve --host 127.0.0.1 --port 8013
 ```
 
-Claude/OpenWebUI config example:
-```json
-{
-  "mcpServers": {
-    "secured-server": {
-      "command": "tehuti-guard",
-      "args": [
-        "--server",
-        "node /path/to/your-server.js",
-        "--config",
-        "/path/to/config.json"
-      ]
-    }
-  }
-}
+### MCP proxy (Node)
+
+```bash
+pnpm install
+pnpm build
+tehuti-guard --server "node your-mcp-server.js" --config examples/guard-v2-config.json
 ```
 
----
+### v2 demo (no HTTP server required)
 
-## 🧪 Quick Test
-
-Example `config.json`:
-```json
-{
-  "maxToolCallsPerMinute": 5,
-  "enablePromptInjectionDetection": true,
-  "enableSensitiveDataDetection": true,
-  "enablePathTraversalPrevention": true,
-  "allowedFilePaths": ["/tmp/safe-directory"],
-  "logPath": "/tmp/mcp_security.log",
-  "logLevel": "info"
-}
+```bash
+export MAATBENCH_PATH=/mnt/ai_models/maatbench
+python3 scripts/maat_runtime_guard_v2_demo.py
+python3 scripts/maat_runtime_guard_v2_demo.py --http --guard-url http://127.0.0.1:8013
 ```
 
-Attacks to verify:
-- Dump API keys → ✅ BLOCKED
-- "Ignore previous instructions" → ✅ BLOCKED
-- `../../../../etc/hosts` → ✅ BLOCKED
+## Environment
 
----
+| Variable | Package | Meaning |
+|----------|---------|---------|
+| `MAATBENCH_PATH` | decision-api | Directory containing `maatbench/covenant_compiler.py` |
+| `TEHUTI_GUARD_PORT` | decision-api | HTTP bind port (default `8013`) |
+| `TEHUTI_GUARD_SENTINEL_URL` | decision-api | maat-sentinel base (default `http://127.0.0.1:4242`) |
+| `guardApiUrl` in MCP config | mcp-proxy | Base URL for `POST /compile-decision` |
 
-## ✨ Features (current)
+## Wire vocabulary
 
-| Feature                        | Description                                 | Status |
-| ------------------------------ | ------------------------------------------- | ------ |
-| Prompt Injection Detection     | Blocks common injection patterns            | ✅     |
-| Sensitive Data Scanning        | Detects keys/passwords/SSNs patterns        | ✅     |
-| Path Traversal Prevention      | Blocks unauthorized file access             | ✅     |
-| Rate Limiting                  | Per-server threshold                        | ✅     |
-| JSON Logging                   | Structured logs with severity               | ✅     |
-| Per-tool policy granularity    | Allow/deny, per-tool limits                 | 🔜     |
-| Rule packs (versioned)         | Curated PI/secret/path rules, updatable     | 🔜     |
-| HTTP/SSE proxy mode            | Beyond stdio                                | 🔜     |
-| Metrics & webhook sinks        | Prometheus + Discord/Slack/webhook          | 🔜     |
-| SQL/XSS detection              | Extended detectors                          | 🔜     |
+`allow` | `deny` | `review` | `quarantine` | `escalate`
 
----
+See `packages/contracts/README.md`.
 
-## 🔍 How It Works
+## Lab integration
 
-Tehuti-Guard sits between the MCP client and server:
-```
-Client (Claude/OpenWebUI) -> Tehuti-Guard -> Your MCP Server
-```
-It evaluates tool calls against policies (rate, prompt-injection, secrets, path rules) and logs/blocks as configured.
+The Tehuti Lab `maat-ecosystem` monorepo **consumes** this repo — it no longer owns
+the Guard source of truth. Clone alongside the lab or set:
 
----
-
-## ⚙️ Configuration
-
-Example `config.json`:
-```json
-{
-  "maxToolCallsPerMinute": 30,
-  "enablePromptInjectionDetection": true,
-  "enableSensitiveDataDetection": true,
-  "enablePathTraversalPrevention": true,
-  "allowedFilePaths": ["/srv/tehuti", "/srv/projects"],
-  "logLevel": "info",
-  "logPath": "/var/log/tehuti-guard/filesystem.log"
-}
+```bash
+export TEHUTI_GUARD_ROOT=/path/to/tehuti-guard
 ```
 
-Roadmap additions (planned):
-- Per-tool allow/deny lists
-- Per-tool rate limits
-- Deny-by-default mode with explicit allowlists
-- Policy schema + `--validate-config`
+## Docs
 
-### Example presets
-- `examples/filesystem.json`: strict paths for file tools, deny execute/delete.
-- `examples/postgres.json`: allow read-only queries; deny execute.
-- `examples/workflow-mcp.json`: allow discovery/validation tools with rate caps.
-
----
-
-## Security Events (JSON)
-```json
-{
-  "timestamp": "2025-12-16T10:30:45.123Z",
-  "eventType": "SECURITY_VIOLATION",
-  "severity": "HIGH",
-  "toolName": "write_file",
-  "details": {
-    "violations": ["Path traversal detected: ../../etc/passwd"],
-    "blocked": true
-  }
-}
-```
-
----
-
-## Performance Target
-| Metric           | Target |
-| ---------------- | ------ |
-| Latency overhead | <1–2%  |
-| Memory           | ~+15MB |
-
----
-
-## Roadmap (fork goals)
-- Per-tool policies (allow/deny, rate, path scopes)
-- Rule packs with versioning and auto-update
-- HTTP/SSE proxy mode
-- Prometheus metrics + webhook sinks
-- Config schema + validation CLI
-- Attack corpus + regression suite
-
----
-
-## Defense in Depth
-- Least privilege: run under non-root users
-- Strict allowlists for filesystem/DB tools
-- Network isolation: loopback-only where possible
-- systemd hardening: NoNewPrivileges, ProtectSystem, PrivateTmp
-- Logging + alerts: Discord/webhook and metrics
-
----
-
-## Contributing
-- Fork, branch, add tests, open PR.
-- Focus areas: rule packs, per-tool policies, transports, metrics/alerts, test corpus.
-
-## Attribution
-
-Tehuti-Guard is part of the Tehuti Lab ecosystem, built on the **KA2 Methodology** and **42 Laws of Dialectical Development** by **Dr. Tdka Kilimanjaro** ([University of KMT](https://universityofkmt.myshopify.com)). See [ATTRIBUTION.md](ATTRIBUTION.md) for details.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/TEHUTI_GUARD_V2_CONSTITUTIONAL_REBUILD.md`](docs/TEHUTI_GUARD_V2_CONSTITUTIONAL_REBUILD.md)
+- [`packages/decision-api/README.md`](packages/decision-api/README.md)
 
 ## License
-MIT (inherited from upstream)
 
-## Support
-- Issues: (new fork tracker)
-- Docs: this README + policy docs
-
+MIT — see [LICENSE](LICENSE).

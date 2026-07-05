@@ -1,0 +1,9 @@
+{
+  "maxToolCallsPerMinute": 30,
+  "enablePromptInjectionDetection": true,
+  "enableSensitiveDataDetection": true,
+  "allowedFilePaths": ["/tmp", "/srv/tehuti"],
+  "guardApiUrl": "http://127.0.0.1:8013",
+  "guardMachineId": "staydangerous",
+  "guardActorId": "tehuti-guard-mcp"
+}

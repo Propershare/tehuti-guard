@@ -10,6 +10,10 @@
 import { spawn, ChildProcess } from "child_process";
 import * as fs from "fs";
 import { createHash } from "crypto";
+import {
+  compileDecision,
+  shouldBlockToolCall,
+} from "./guard-api-client";
 
 interface SecurityConfig {
   maxToolCallsPerMinute?: number;
@@ -19,6 +23,10 @@ interface SecurityConfig {
   enablePromptInjectionDetection?: boolean;
   enableSensitiveDataDetection?: boolean;
   logPath?: string;
+  /** v2: Tehuti Guard decision API base URL (e.g. http://127.0.0.1:8013) */
+  guardApiUrl?: string;
+  guardMachineId?: string;
+  guardActorId?: string;
 }
 
 interface SecurityEvent {
@@ -212,15 +220,22 @@ class MCPSecurityWrapper {
   private sessionId: string;
   private clientMessageBuffer: string = "";
   private serverMessageBuffer: string = "";
+  private guardApiUrl?: string;
+  private guardMachineId: string;
+  private guardActorId: string;
 
   constructor(
     serverCommand: string[],
     policy: SecurityPolicy,
-    logger: SecurityLogger
+    logger: SecurityLogger,
+    config: SecurityConfig = {}
   ) {
     this.serverCommand = serverCommand;
     this.policy = policy;
     this.logger = logger;
+    this.guardApiUrl = config.guardApiUrl;
+    this.guardMachineId = config.guardMachineId || "default";
+    this.guardActorId = config.guardActorId || "tehuti-guard-mcp";
     this.sessionId = createHash("md5")
       .update(Date.now().toString())
       .digest("hex")
@@ -294,12 +309,17 @@ class MCPSecurityWrapper {
     this.clientMessageBuffer = lines.pop() || "";
     for (const line of lines) {
       if (line.trim()) {
-        this.processClientMessage(line);
+        void this.processClientMessage(line).catch((err) => {
+          console.error("Guard/MCP message handling error:", err);
+          if (this.process?.stdin) {
+            this.process.stdin.write(line + "\n");
+          }
+        });
       }
     }
   }
 
-  private processClientMessage(line: string): void {
+  private async processClientMessage(line: string): Promise<void> {
     try {
       const message: MCPMessage = JSON.parse(line);
       this.logger.logEvent(
@@ -370,6 +390,40 @@ class MCPSecurityWrapper {
           },
           this.sessionId
         );
+
+        if (this.guardApiUrl && !shouldBlock) {
+          const toolName = message.params?.name || "unknown";
+          const argsStr = JSON.stringify(message.params?.arguments || {});
+          try {
+            const guardRes = await compileDecision(this.guardApiUrl, {
+              machine_id: this.guardMachineId,
+              actor: { id: this.guardActorId, role: "mcp_proxy" },
+              action: {
+                kind: "tool_call",
+                resource: `${toolName}:${argsStr.slice(0, 500)}`,
+                risk: "medium",
+                metadata: { tool_name: toolName, category: "action_discernment" },
+              },
+              raw_model_output: JSON.stringify({
+                decision: "allow",
+                reason: "MCP tool call intercepted for constitutional review.",
+              }),
+            });
+            if (shouldBlockToolCall(guardRes.decision)) {
+              shouldBlock = true;
+              violations.push(
+                `Guard compile-decision: ${guardRes.decision} — ${guardRes.reason}`
+              );
+            }
+          } catch (err) {
+            shouldBlock = true;
+            violations.push(
+              `Guard API unreachable: ${
+                err instanceof Error ? err.message : String(err)
+              }`
+            );
+          }
+        }
       }
 
       if (violations.length > 0) {
@@ -553,7 +607,8 @@ Options:
   const wrapper = new MCPSecurityWrapper(
     serverCommand.split(" "),
     policy,
-    logger
+    logger,
+    config
   );
 
   // console.log("ContextGuard is running");

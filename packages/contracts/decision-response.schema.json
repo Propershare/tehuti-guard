@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Propershare/tehuti-guard/decision-response.schema.json",
+  "title": "TehutiGuardDecisionResponse",
+  "type": "object",
+  "required": ["decision", "reason", "policy_version"],
+  "properties": {
+    "decision": {
+      "enum": ["allow", "deny", "review", "quarantine", "escalate"]
+    },
+    "severity": { "type": "string" },
+    "reason": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "blocking_actions": { "type": "array", "items": { "type": "string" } },
+    "matched_rules": { "type": "array", "items": { "type": "string" } },
+    "explanation_id": { "type": "string" },
+    "correlation_id": { "type": "string" },
+    "policy_version": { "type": "string" },
+    "compiler_result": { "type": "object" },
+    "evidence": { "type": "object" }
+  },
+  "additionalProperties": true
+}

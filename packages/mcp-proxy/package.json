@@ -1,0 +1,44 @@
+{
+  "name": "tehuti-guard-mcp",
+  "version": "0.2.0",
+  "description": "MCP security proxy — intercepts tool calls; optional Guard decision API hook",
+  "main": "dist/mcp-security-wrapper.js",
+  "types": "dist/mcp-security-wrapper.d.ts",
+  "homepage": "https://github.com/Propershare/tehuti-guard#readme",
+  "author": "Tehuti Guard maintainers",
+  "license": "MIT",
+  "bin": {
+    "contextguard": "./dist/mcp-security-wrapper.js",
+    "tehuti-guard": "./dist/mcp-security-wrapper.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/mcp-security-wrapper.js",
+    "dev": "ts-node src/mcp-security-wrapper.ts",
+    "test": "node --test test/test-server.ts",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "mcp",
+    "security",
+    "guard",
+    "maat",
+    "covenant"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Propershare/tehuti-guard.git",
+    "directory": "packages/mcp-proxy"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/node": "^24.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "eslint": "^9.37.0",
+    "globals": "^16.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}
